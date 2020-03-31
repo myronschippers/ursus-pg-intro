@@ -6,12 +6,13 @@ const app = express();
 const Pool = pg.Pool;
 const PORT = process.env.PORT || 5000;
 
+// Configuring the pool connection from the server to the database
 const pool = new Pool({
-  database: 'music_storage',
-  host: 'localhost',
-  port: 5432,
-  max: 10,
-  idleTimeoutMills: 30000,
+  database: 'music_storage', // the name of database, !! This Can Change !!
+  host: 'localhost', // where is your database? (on my machine)
+  port: 5432, // the port for the database, 5432 is default for postgres
+  max: 10, // how many connections (queries) at one time
+  idleTimeoutMills: 30000, // 30 seconds to try to connect, otherwise  cancel query
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,15 +39,19 @@ app.get('/songs', (req, res) => {
 // POST ROUTE for saving a song
 app.post('/songs', (req, res) => {
   const dataSentFromClient = req.body;
+  // EXPECTED DATA STRUCTURE FROM CLIENT/REQUEST
   // {
   //   rank: 0,
   //   track: '',
   //   artist: '',
   //   published: '1-1-2001',
   // }
+
+  // Have to remember single quotes around string values placed in query
   // const queryText = `INSERT INTO "songs" ("rank", "track", "artist", "published")
   // VALUES (${dataSentFromClient.rank}, '${dataSentFromClient.track}', '${dataSentFromClient.artist}', '${dataSentFromClient.published}');`;
 
+  // Using the pool/pg placeholders of $1, $2,.. etc to help sanitize our values
   const queryText = `INSERT INTO "songs" ("rank", "track", "artist", "published")
   VALUES ($1, $2, $3, $4);`;
 
