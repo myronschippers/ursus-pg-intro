@@ -26,6 +26,7 @@ app.get('/songs', (req, res) => {
   pool.query(queryText)
     .then((responseDB) => {
       const dbRows = responseDB.rows;
+      console.table(dbRows);
       res.send(dbRows);
     })
     .catch((err) => {
@@ -36,7 +37,28 @@ app.get('/songs', (req, res) => {
 
 // POST ROUTE for saving a song
 app.post('/songs', (req, res) => {
+  const dataSentFromClient = req.body;
+  // {
+  //   rank: 0,
+  //   track: '',
+  //   artist: '',
+  //   published: '1-1-2001',
+  // }
+  // const queryText = `INSERT INTO "songs" ("rank", "track", "artist", "published")
+  // VALUES (${dataSentFromClient.rank}, '${dataSentFromClient.track}', '${dataSentFromClient.artist}', '${dataSentFromClient.published}');`;
 
+  const queryText = `INSERT INTO "songs" ("rank", "track", "artist", "published")
+  VALUES ($1, $2, $3, $4);`;
+
+  pool.query(queryText, [dataSentFromClient.rank, dataSentFromClient.track, dataSentFromClient.artist, dataSentFromClient.published])
+    .then((responseDb) => {
+      console.log(responseDb);
+      res.sendStatus(201);
+    })
+    .catch((err) => {
+      console.log('ERROR:', err);
+      res.sendStatus(500);
+    });
 });
 
 // KICK OFF APP
